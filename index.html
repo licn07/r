@@ -37,22 +37,27 @@
             font-style: italic !important;
         }
 
-        /* 通用按钮按压动画：覆盖所有按钮 */
-        .func-btn, .coffee-btn, .repo-btn {
+        /* 通用按钮按压动画：固定按钮内边距，保持大小不变 */
+        .func-btn, .coffee-btn, .repo-btn, .panel-btn, .notice-toggle-btn {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 4px 12px;
+            justify-content: center; /* 文字居中 */
+            gap: 2px; /* 缩小图标与文字间距 */
+            padding: 6px 8px !important; /* 固定内边距，保持按钮大小 */
             border-radius: 4px;
             transition: all 0.15s ease;
             transform: scale(1);
             cursor: pointer;
             border: none;
             outline: none;
+            flex: 1; /* 平均分配宽度 */
+            min-width: 80px; /* 最小宽度，防止挤压 */
+            height: 40px; /* 固定按钮高度 */
+            font-size: 12px; /* 适配移动端文字大小 */
         }
 
         /* 按钮点击按压效果 */
-        .func-btn:active, .coffee-btn:active, .repo-btn:active {
+        .func-btn:active, .coffee-btn:active, .repo-btn:active, .panel-btn:active, .notice-toggle-btn:active {
             transform: scale(0.95);
             opacity: 0.8;
         }
@@ -85,17 +90,67 @@
             color: #fff !important;
         }
 
-        /* 仓库项按钮基础样式 - 固定蓝色背景 */
+        /* 仓库项按钮基础样式 - 固定蓝色背景，大小不变 */
         .repo-btn {
             background-color: #0969DA !important;
             color: #fff !important;
         }
+        /* 仓库项按钮隐藏类 */
+        .repo-btn-hidden {
+            display: none !important;
+        }
 
-        /* 下载提示文字样式 */
+        /* 面板切换按钮样式，大小与其他按钮一致 */
+        .panel-btn {
+            background-color: #21262D;
+            color: #fff;
+        }
+        .panel-btn-dark-text {
+            background-color: #e5e7eb !important;
+            color: #000 !important;
+        }
+        .panel-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* 新增公告开关按钮样式 */
+        .notice-toggle-btn {
+            background-color: #ff6b6b;
+            color: #fff;
+            margin-bottom: 4px; /* 与仓库项按钮隔开 */
+        }
+        .notice-toggle-btn-dark-text {
+            background-color: #ff8787 !important;
+            color: #fff !important;
+        }
+        .notice-toggle-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* 下载提示文字样式：强制深红色，!important 覆盖主题切换的颜色修改 */
         .download-tip {
-            color: #8B949E;
+            color: #DC143C !important;
             font-size: 10px;
             margin-left: 8px;
+        }
+
+        /* 面板容器样式 */
+        .panel-container {
+            position: relative;
+            width: 100%;
+            min-height: 300px;
+        }
+        .panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        .panel-hidden {
+            opacity: 0;
+            pointer-events: none;
         }
 
         #snowContainer {
@@ -120,90 +175,260 @@
             color: #0D1117 !important;
             text-shadow: 0 0 4px #0D1117 !important;
         }
+
+        /* 下雨效果样式（优化生动性） */
+        #rainContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 99999; /* 与雪花同层级 */
+        }
+        .raindrop {
+            position: absolute;
+            width: 2px;
+            height: 15px;
+            background: linear-gradient(to bottom, transparent, #a0c4ff); /* 渐变雨滴更真实 */
+            border-radius: 50% 50% 0 0;
+            user-select: none;
+            transition: opacity 0.5s, transform 0.1s ease; /* 新增晃动过渡 */
+            will-change: left, top, transform;
+        }
+        .raindrop-light-theme {
+            background: linear-gradient(to bottom, transparent, #0969DA) !important; /* 浅色主题渐变雨滴 */
+        }
+        /* 雨滴尾迹效果 */
+        .raindrop::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 2px;
+            height: 8px;
+            background: rgba(160, 196, 255, 0.3);
+            border-radius: 0 0 50% 50%;
+        }
+        .raindrop-light-theme::after {
+            background: rgba(9, 105, 218, 0.3) !important;
+        }
+
+        /* 按钮栏布局：弹性布局，平均分配空间 */
+        .btn-bar {
+            display: flex;
+            flex-direction: column; /* 垂直排列公告开关和仓库项 */
+            gap: 2px; /* 按钮间微小间距 */
+            width: 100%;
+        }
+
+        /* 欢迎公告弹窗样式 */
+        .notice-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999; /* 最高层级 */
+            transition: opacity 0.3s ease;
+        }
+        .notice-overlay-hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .notice-card {
+            background-color: #fff;
+            border: 2px solid #0969DA;
+            border-radius: 8px;
+            padding: 20px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .notice-card-dark {
+            background-color: #0D1117;
+            border-color: #0969DA;
+            color: #fff;
+        }
+        .notice-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0969DA;
+        }
+        .notice-content {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        .notice-close-tip {
+            font-size: 12px;
+            color: #8B949E;
+        }
     </style>
 </head>
-<body class="bg-github-darker text-white font-mono">
-    <div id="snowContainer"></div>
+<body class="bg-white text-gray-800 font-mono">
+    <!-- 欢迎公告弹窗 -->
+    <div id="noticeOverlay" class="notice-overlay">
+        <div id="noticeCard" class="notice-card">
+            <h3 class="notice-title">🎉 欢迎来到LiCN资源站</h3>
+            <p class="notice-content">本站提供各类实用工具、模拟器及破解软件资源，持续更新中~<br>点击页面空白处可关闭本公告</p>
+            <p class="notice-close-tip">温馨提示：请合理使用站内资源</p>
+        </div>
+    </div>
 
-    <!-- 开关栏添加 id 用于样式控制 -->
-    <header class="sticky top-0 z-50 border-b border-github-gray py-3" id="headerBar">
-        <div class="flex items-center justify-center space-x-8 px-4">
-            <button id="snowToggle" class="func-btn text-gray-300 hover:text-white text-blue-400">
+    <div id="snowContainer"></div>
+    <div id="rainContainer"></div>
+
+    <!-- 开关栏 -->
+    <header class="sticky top-0 z-50 border-b border-gray-200 py-3" id="headerBar">
+        <div class="flex items-center justify-center space-x-4 px-2">
+            <button id="snowToggle" class="func-btn func-btn-dark-text text-blue-400">
                 <i class="fa fa-snowflake-o"></i><span>雪花开关</span>
             </button>
-            <button id="themeToggle" class="func-btn text-gray-300 hover:text-white">
-                <i class="fa fa-moon-o"></i><span>主题开关</span>
+            <button id="rainToggle" class="func-btn func-btn-dark-text">
+                <i class="fa fa-tint"></i><span>下雨开关</span>
+            </button>
+            <button id="themeToggle" class="func-btn func-btn-dark-text">
+                <i class="fa fa-sun-o"></i><span>主题开关</span>
             </button>
         </div>
     </header>
 
     <div class="px-4 py-6 relative z-10">
         <aside class="mb-6 text-center">
-            <div class="h-32 w-32 mx-auto rounded-full border-2 border-github-gray overflow-hidden mb-4">
+            <div class="h-32 w-32 mx-auto rounded-full border-2 border-gray-200 overflow-hidden mb-4">
                 <img src="logo.jpg" alt="头像" class="w-full h-full object-cover">
             </div>
             <h2 class="text-xl font-bold">LiCN资源站</h2>
-            <p class="text-sm text-github-lightgray mb-4">正在运行测试中~</p>
+            <p class="text-sm text-gray-600 mb-4">正在运行测试中~</p>
         </aside>
 
         <main>
-            <div class="border-b border-github-gray pb-4 mb-6 flex items-center justify-between">
-                <button class="repo-btn">
-                    <i class="fa fa-book"></i><span>仓库项</span>
-                </button>
-                <a href="https://jcn101cvl5dk.feishu.cn/wiki/NYUpwdg9uiJcWGksFYzcF97mnbb" target="_blank" id="coffeeBtn" class="coffee-btn">
-                    <i class="fa fa-coffee"></i><span>请我喝咖啡</span>
-                </a>
+            <div class="border-b border-gray-200 pb-4 mb-6">
+                <!-- 按钮栏：垂直排列公告开关和仓库项 -->
+                <div class="btn-bar">
+                    <!-- 新增公告开关按钮（带喇叭图标） -->
+                    <button id="noticeToggleBtn" class="notice-toggle-btn notice-toggle-btn-dark-text">
+                        <i class="fa fa-bullhorn"></i><span>公告开关</span>
+                    </button>
+                    <button id="repoBtn" class="repo-btn">
+                        <i class="fa fa-book"></i><span>仓库项</span>
+                    </button>
+                    <button id="panelToggle" class="panel-btn panel-btn-dark-text">
+                        <i class="fa fa-exchange"></i><span>切换至已破解软件合集</span>
+                    </button>
+                    <a href="https://jcn101cvl5dk.feishu.cn/wiki/NYUpwdg9uiJcWGksFYzcF97mnbb" target="_blank" id="coffeeBtn" class="coffee-btn coffee-btn-dark">
+                        <i class="fa fa-coffee"></i><span>请我喝咖啡</span>
+                    </a>
+                </div>
             </div>
 
-            <div class="space-y-3">
-                <div class="border border-github-gray rounded-md p-4 hover:bg-github-gray/30 transition-colors">
-                    <div class="flex justify-between items-start">
-                        <h3 class="text-lg font-medium text-github-blue hover:underline">
-                            <a href="https://example.com/tr-simulator-download" target="_blank">Tr、Kr2模拟器下载链接</a>
-                        </h3>
-                        <span class="text-xs px-2 py-1 bg-github-gray rounded-full text-github-lightgray">公共</span>
+            <div class="panel-container space-y-3">
+                <!-- 资源面板（默认显示） -->
+                <div id="resourcePanel" class="panel">
+                    <div class="border border-gray-200 rounded-md p-4 hover:bg-gray-100 transition-colors">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-lg font-medium text-github-blue hover:underline">
+                                <a href="https://example.com/tr-simulator-download" target="_blank">Tr、Kr2模拟器下载链接</a>
+                            </h3>
+                            <span class="text-xs px-2 py-1 bg-gray-200 rounded-full text-gray-600">公共</span>
+                        </div>
+                        <p class="text-sm mt-2">
+                            <a href="https://www.123865.com/s/Miq5jv-p8Xsh" target="_blank" class="text-github-blue hover:underline">点我下载</a>
+                            <span class="download-tip">/请下载好123云盘并登录帐号后再进行后续操作</span>
+                        </p>
+                        <div class="flex items-center space-x-4 mt-3 text-xs text-gray-600">
+                            <span><i class="fa fa-circle text-green-500 mr-1"></i>工具/模拟器</span>
+                            <span>更新于 2025-12-29</span>
+                        </div>
                     </div>
-                    <p class="text-sm mt-2">
-                        <a href="https://www.123865.com/s/Miq5jv-p8Xsh" target="_blank" class="text-github-blue hover:underline">点我下载</a>
-                        <span class="download-tip">/请下载好123云盘并登录帐号后再进行后续操作</span>
-                    </p>
-                    <div class="flex items-center space-x-4 mt-3 text-xs text-github-lightgray">
-                        <span><i class="fa fa-circle text-green-500 mr-1"></i>工具/模拟器</span>
-                        <span>更新于 2025-12-29</span>
+                    <div class="border border-gray-200 rounded-md p-4 hover:bg-gray-100 transition-colors">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-lg font-medium text-github-blue hover:underline cursor-not-allowed">
+                                测试占位无用仓库项
+                            </h3>
+                            <span class="text-xs px-2 py-1 bg-gray-200 rounded-full text-gray-600">无用</span>
+                        </div>
+                        <p class="text-sm mt-2">
+                            <span class="text-gray-400 cursor-not-allowed">该项目无实际内容</span>
+                            <span class="download-tip">/仅作页面占位展示使用</span>
+                        </p>
+                        <div class="flex items-center space-x-4 mt-3 text-xs text-gray-600">
+                            <span><i class="fa fa-circle text-gray-400 mr-1"></i>测试/占位</span>
+                            <span>更新于 2025-12-30</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 已破解软件合集面板（默认隐藏） -->
+                <div id="testPanel" class="panel panel-hidden">
+                    <div class="border border-gray-200 rounded-md p-6 hover:bg-gray-100 transition-colors text-center">
+                        <i class="fa fa-flask text-4xl mb-4 text-gray-500"></i>
+                        <h3 class="text-xl font-bold mb-2">已破解软件合集</h3>
+                        <p class="text-gray-600 mb-4">该面板将展示各类破解软件资源</p>
+                        <div class="text-xs text-gray-400">
+                            面板功能待完善 ✨
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <footer class="border-t border-github-gray py-6 text-center text-sm text-github-lightgray">
+    <footer class="border-t border-gray-200 py-6 text-center text-sm text-gray-600">
         <p>© 2025 LiCN资源站. 保留所有权利。</p>
     </footer>
 
     <script>
         const themeToggle = document.getElementById('themeToggle');
         const snowToggle = document.getElementById('snowToggle');
+        const rainToggle = document.getElementById('rainToggle');
         const snowContainer = document.getElementById('snowContainer');
+        const rainContainer = document.getElementById('rainContainer');
         const coffeeBtn = document.getElementById('coffeeBtn');
-        const headerBar = document.getElementById('headerBar'); // 获取开关栏 DOM
+        const headerBar = document.getElementById('headerBar');
         const body = document.body;
         const allElements = document.querySelectorAll('*');
         
-        let isDark = true;
+        // 面板相关元素
+        const panelToggle = document.getElementById('panelToggle');
+        const resourcePanel = document.getElementById('resourcePanel');
+        const testPanel = document.getElementById('testPanel');
+        const repoBtn = document.getElementById('repoBtn');
+        let currentPanel = 'resource';
+
+        // 公告相关元素
+        const noticeOverlay = document.getElementById('noticeOverlay');
+        const noticeCard = document.getElementById('noticeCard');
+        const noticeToggleBtn = document.getElementById('noticeToggleBtn');
+        let noticeEnabled = true; // 记录公告状态
+
+        // 初始浅色主题
+        let isDark = false;
         let snowEnabled = true;
+        let rainEnabled = false;
         const SNOW_COUNT = 40;
+        const RAIN_COUNT = 80;
         const snowChars = ['❄️', '❅', '❆', '●', '❉'];
         let snowTimer = null;
+        let rainTimer = null;
         let snowParams = [];
+        let rainParams = [];
 
-        // 初始化 - 设置开关栏初始背景（深色主题）
+        // 初始化
         window.onload = () => {
+            headerBar.style.backgroundColor = '#fff';
             initSnow();
             startSnowAnimation();
-            headerBar.style.backgroundColor = '#0D1117';
         }
 
+        // 雪花相关方法
         function createSnowElement() {
             const snow = document.createElement('div');
             snow.className = 'snowflake';
@@ -219,7 +444,6 @@
             snowToggle.classList.add('text-blue-400');
             snowContainer.innerHTML = '';
             snowParams = [];
-
             for (let i = 0; i < SNOW_COUNT; i++) {
                 const snow = createSnowElement();
                 const x = Math.random() * 100;
@@ -227,16 +451,11 @@
                 const speedY = Math.random() * 0.3 + 0.2;
                 const speedX = Math.random() * 0.2 - 0.1;
                 const rotateSpeed = Math.random() * 1 + 0.5;
-
                 snow.style.left = `${x}vw`;
                 snow.style.top = `${y}vh`;
                 snow.style.transform = `rotate(0deg)`;
                 snowContainer.appendChild(snow);
-
-                snowParams.push({
-                    el: snow,
-                    x, y, speedY, speedX, rotateSpeed, rotate: 0
-                });
+                snowParams.push({ el: snow, x, y, speedY, speedX, rotateSpeed, rotate: 0 });
             }
         }
 
@@ -248,12 +467,10 @@
                     param.y += param.speedY;
                     param.x += param.speedX;
                     param.rotate += param.rotateSpeed;
-
                     if (param.y > 100) {
                         param.y = -20;
                         param.x = Math.random() * 100;
                     }
-
                     param.el.style.left = `${param.x}vw`;
                     param.el.style.top = `${param.y}vh`;
                     param.el.style.transform = `rotate(${param.rotate}deg)`;
@@ -266,6 +483,67 @@
             setTimeout(() => snowContainer.innerHTML = '', 800);
         }
 
+        // 下雨相关方法
+        function createRainElement() {
+            const rain = document.createElement('div');
+            rain.className = 'raindrop';
+            if (!isDark) rain.classList.add('raindrop-light-theme');
+            const height = Math.random() * 8 + 12;
+            const width = Math.random() * 1 + 1;
+            rain.style.height = `${height}px`;
+            rain.style.width = `${width}px`;
+            rain.style.opacity = Math.random() * 0.6 + 0.2;
+            rain.style.transform = `rotate(${Math.random() * 10 - 5}deg)`;
+            return rain;
+        }
+
+        function initRain() {
+            rainToggle.innerHTML = '<i class="fa fa-tint"></i><span>下雨开关</span>';
+            rainToggle.classList.add('text-blue-400');
+            rainContainer.innerHTML = '';
+            rainParams = [];
+            for (let i = 0; i < RAIN_COUNT; i++) {
+                const rain = createRainElement();
+                const x = Math.random() * 100;
+                const y = Math.random() * -20;
+                const speedY = Math.random() * 0.3 + 0.2;
+                const speedX = Math.random() * 0.3 - 0.15;
+                const shakeAmplitude = Math.random() * 0.5 + 0.2;
+                const shakeFrequency = Math.random() * 0.1 + 0.05;
+                rain.style.left = `${x}vw`;
+                rain.style.top = `${y}vh`;
+                rainContainer.appendChild(rain);
+                rainParams.push({ el: rain, x, y, speedY, speedX, shakeAmplitude, shakeFrequency, shakeTime: 0 });
+            }
+        }
+
+        function startRainAnimation() {
+            if (rainTimer) clearInterval(rainTimer);
+            rainTimer = setInterval(() => {
+                if (!rainEnabled) return;
+                rainParams.forEach(param => {
+                    param.y += param.speedY;
+                    param.x += param.speedX;
+                    param.shakeTime += param.shakeFrequency;
+                    const shakeOffset = Math.sin(param.shakeTime) * param.shakeAmplitude;
+                    if (param.y > 100) {
+                        param.y = -20;
+                        param.x = Math.random() * 100;
+                        param.shakeTime = 0;
+                    }
+                    param.el.style.left = `${param.x + shakeOffset}vw`;
+                    param.el.style.top = `${param.y}vh`;
+                    param.el.style.transform = `rotate(${Math.random() * 10 - 5 + shakeOffset * 2}deg)`;
+                });
+            }, 30);
+        }
+
+        function fadeOutRain() {
+            document.querySelectorAll('.raindrop').forEach(rain => rain.style.opacity = 0);
+            setTimeout(() => rainContainer.innerHTML = '', 500);
+        }
+
+        // 雪花开关事件
         snowToggle.addEventListener('click', () => {
             snowEnabled = !snowEnabled;
             if (snowEnabled) {
@@ -281,36 +559,56 @@
             }
         });
 
+        // 下雨开关事件
+        rainToggle.addEventListener('click', () => {
+            rainEnabled = !rainEnabled;
+            if (rainEnabled) {
+                rainToggle.classList.add('text-blue-400');
+                if (!isDark) rainToggle.classList.add('func-btn-dark-text');
+                initRain();
+                startRainAnimation();
+            } else {
+                rainToggle.classList.remove('text-blue-400');
+                if (!isDark) rainToggle.classList.add('func-btn-dark-text');
+                fadeOutRain();
+                clearInterval(rainTimer);
+            }
+        });
+
+        // 主题切换事件
         themeToggle.addEventListener('click', () => {
             if (isDark) {
-                // 切换浅色主题
                 body.classList.replace('bg-github-darker', 'bg-white');
                 body.classList.replace('text-white', 'text-gray-800');
                 themeToggle.innerHTML = '<i class="fa fa-sun-o"></i><span>主题开关</span>';
                 snowToggle.classList.add('func-btn-dark-text');
+                rainToggle.classList.add('func-btn-dark-text');
                 themeToggle.classList.add('func-btn-dark-text');
+                panelToggle.classList.add('panel-btn-dark-text');
+                noticeToggleBtn.classList.add('notice-toggle-btn-dark-text');
                 snowToggle.classList.remove('text-gray-300', 'hover:text-white');
+                rainToggle.classList.remove('text-gray-300', 'hover:text-white');
                 themeToggle.classList.remove('text-gray-300', 'hover:text-white');
                 coffeeBtn.classList.add('coffee-btn-dark');
-                // 浅色主题：开关栏背景设为白色
                 headerBar.style.backgroundColor = '#fff';
-                // 提示文字颜色调整
-                document.querySelectorAll('.download-tip').forEach(tip => tip.style.color = '#666');
+                noticeCard.classList.remove('notice-card-dark');
             } else {
-                // 切换深色主题
                 body.classList.replace('bg-white', 'bg-github-darker');
                 body.classList.replace('text-gray-800', 'text-white');
                 themeToggle.innerHTML = '<i class="fa fa-moon-o"></i><span>主题开关</span>';
                 snowToggle.classList.remove('func-btn-dark-text');
+                rainToggle.classList.remove('func-btn-dark-text');
                 themeToggle.classList.remove('func-btn-dark-text');
+                panelToggle.classList.remove('panel-btn-dark-text');
+                noticeToggleBtn.classList.remove('notice-toggle-btn-dark-text');
                 snowToggle.classList.add('text-gray-300', 'hover:text-white');
+                rainToggle.classList.add('text-gray-300', 'hover:text-white');
                 themeToggle.classList.add('text-gray-300', 'hover:text-white');
                 if (snowEnabled) snowToggle.classList.add('text-blue-400');
+                if (rainEnabled) rainToggle.classList.add('text-blue-400');
                 coffeeBtn.classList.remove('coffee-btn-dark');
-                // 深色主题：开关栏背景设为黑色
                 headerBar.style.backgroundColor = '#0D1117';
-                // 提示文字颜色调整
-                document.querySelectorAll('.download-tip').forEach(tip => tip.style.color = '#8B949E');
+                noticeCard.classList.add('notice-card-dark');
             }
             allElements.forEach(el => {
                 el.classList.contains('bg-github-dark') && el.classList.replace('bg-github-dark', 'bg-gray-100');
@@ -320,11 +618,56 @@
                 el.classList.contains('hover:bg-github-gray/30') && el.classList.replace('hover:bg-github-gray/30', 'hover:bg-gray-100');
             });
             document.querySelectorAll('.snowflake').forEach(s => s.classList.toggle('snowflake-light-theme'));
+            document.querySelectorAll('.raindrop').forEach(r => r.classList.toggle('raindrop-light-theme'));
             isDark = !isDark;
             snowEnabled && initSnow();
+            rainEnabled && initRain();
         });
 
-        window.addEventListener('resize', () => { snowEnabled && initSnow(); });
+        // 面板切换事件
+        panelToggle.addEventListener('click', () => {
+            if (currentPanel === 'resource') {
+                resourcePanel.classList.add('panel-hidden');
+                testPanel.classList.remove('panel-hidden');
+                repoBtn.classList.add('repo-btn-hidden');
+                panelToggle.innerHTML = '<i class="fa fa-exchange"></i><span>返回上一面板</span>';
+                currentPanel = 'test';
+            } else {
+                testPanel.classList.add('panel-hidden');
+                resourcePanel.classList.remove('panel-hidden');
+                repoBtn.classList.remove('repo-btn-hidden');
+                panelToggle.innerHTML = '<i class="fa fa-exchange"></i><span>切换至已破解软件合集</span>';
+                currentPanel = 'resource';
+            }
+        });
+
+        // 新增公告开关事件
+        noticeToggleBtn.addEventListener('click', () => {
+            noticeEnabled = !noticeEnabled;
+            if (noticeEnabled) {
+                noticeOverlay.classList.remove('notice-overlay-hidden');
+                noticeToggleBtn.innerHTML = '<i class="fa fa-bullhorn"></i><span>关闭公告</span>';
+            } else {
+                noticeOverlay.classList.add('notice-overlay-hidden');
+                noticeToggleBtn.innerHTML = '<i class="fa fa-bullhorn"></i><span>开启公告</span>';
+            }
+        });
+
+        // 点击空白处关闭公告
+        noticeOverlay.addEventListener('click', (e) => {
+            if (e.target === noticeOverlay) {
+                noticeOverlay.classList.add('notice-overlay-hidden');
+                noticeEnabled = false;
+                noticeToggleBtn.innerHTML = '<i class="fa fa-bullhorn"></i><span>开启公告</span>';
+            }
+        });
+
+        // 窗口缩放适配
+        window.addEventListener('resize', () => { 
+            snowEnabled && initSnow(); 
+            rainEnabled && initRain();
+        });
     </script>
 </body>
 </html>
+
